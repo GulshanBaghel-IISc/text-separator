@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi-English Text Separator - Free Online Tool</title>
+    <meta name="description" content="Free online tool to separate Hindi and English words from mixed text with spell checking. No login required.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans+Devanagari:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .hindi-text { font-family: 'Noto Sans Devanagari', 'Roboto', sans-serif; }
+        body { font-family: 'Roboto', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <i data-lucide="languages" class="text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-medium text-gray-900">Hindi-English Text Separator</h1>
+                    <p class="text-sm text-gray-600">Separate mixed Hindi-English text instantly with spell checking</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Input Section -->
+            <div class="space-y-6">
+                <!-- Input Card -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="px-6 py-4 border-b bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-medium">Input Text</h2>
+                            <div class="flex space-x-2">
+                                <button onclick="pasteText()" class="px-3 py-1 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white">
+                                    <i data-lucide="clipboard" class="w-4 h-4 inline mr-1"></i>Paste
+                                </button>
+                                <button onclick="clearText()" class="px-3 py-1 text-sm border border-gray-300 text-gray-600 rounded hover:bg-gray-100">
+                                    <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <textarea 
+                            id="inputText" 
+                            placeholder="Enter or paste your mixed Hindi-English text here..."
+                            class="w-full h-64 p-4 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent hindi-text text-base"
+                        ></textarea>
+                        
+                        <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                <span>Characters: <span id="charCount">0</span></span>
+                                <span>Words: <span id="wordCount">0</span></span>
+                            </div>
+                            <button 
+                                onclick="processText()"
+                                class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-medium"
+                                id="processBtn"
+                            >
+                                <i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>Separate Text
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h3 class="text-lg font-medium mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="loadSample()" class="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 flex flex-col items-center space-y-2">
+                            <i data-lucide="file-text" class="w-6 h-6 text-gray-500"></i>
+                            <span class="text-sm font-medium">Load Sample Text</span>
+                        </button>
+                        <label class="cursor-pointer">
+                            <div class="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 flex flex-col items-center space-y-2">
+                                <i data-lucide="upload" class="w-6 h-6 text-gray-500"></i>
+                                <span class="text-sm font-medium">Upload File</span>
+                            </div>
+                            <input type="file" accept=".txt" onchange="handleFileUpload(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="space-y-6" id="resultsSection">
+                <!-- Statistics -->
+                <div class="bg-white rounded-lg shadow-sm border p-6" id="statsCard">
+                    <h3 class="text-lg font-medium mb-4">Statistics</h3>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="type" class="text-blue-500 w-6 h-6"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-blue-500" id="englishCount">0</p>
+                            <p class="text-sm text-gray-600">Correct English</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="languages" class="text-orange-500 w-6 h-6"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-orange-500 hindi-text" id="hindiCount">0</p>
+                            <p class="text-sm text-gray-600">Correct Hindi</p>
+                        </div>
+                    </div>
+                    <div id="incorrectWordsAlert" class="hidden mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="flex items-center justify-center mb-3">
+                            <i data-lucide="alert-triangle" class="text-red-500 w-5 h-5 mr-2"></i>
+                            <h4 class="text-sm font-medium text-red-700">Spelling Issues Found</h4>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <p class="text-lg font-bold text-red-600" id="incorrectEnglishCount">0</p>
+                                <p class="text-xs text-red-600">Incorrect English</p>
+                            </div>
+                            <div>
+                                <p class="text-lg font-bold text-red-600 hindi-text" id="incorrectHindiCount">0</p>
+                                <p class="text-xs text-red-600">Incorrect Hindi</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- English Words -->
+                <div class="bg-white rounded-lg shadow-sm border" id="englishWordsCard">
+                    <div class="px-6 py-4 border-b bg-blue-50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-medium flex items-center">
+                                <i data-lucide="type" class="text-blue-500 w-5 h-5 mr-2"></i>
+                                English Words
+                                <span class="ml-2 px-2 py-1 bg-blue-500 text-white text-sm rounded" id="englishBadge">0</span>
+                            </h3>
+                            <button onclick="copyWords('english')" class="px-3 py-1 text-sm border border-blue-500 text-blue-500 rounded hover:bg-blue-500 hover:text-white">
+                                <i data-lucide="copy" class="w-4 h-4 inline mr-1"></i>Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6" id="englishWordsContainer">
+                        <p class="text-center text-gray-500 py-8">No English words found in the text</p>
+                    </div>
+                </div>
+
+                <!-- Hindi Words -->
+                <div class="bg-white rounded-lg shadow-sm border" id="hindiWordsCard">
+                    <div class="px-6 py-4 border-b bg-orange-50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-medium flex items-center">
+                                <i data-lucide="languages" class="text-orange-500 w-5 h-5 mr-2"></i>
+                                Hindi Words
+                                <span class="ml-2 px-2 py-1 bg-orange-500 text-white text-sm rounded" id="hindiBadge">0</span>
+                            </h3>
+                            <button onclick="copyWords('hindi')" class="px-3 py-1 text-sm border border-orange-500 text-orange-500 rounded hover:bg-orange-500 hover:text-white">
+                                <i data-lucide="copy" class="w-4 h-4 inline mr-1"></i>Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6" id="hindiWordsContainer">
+                        <p class="text-center text-gray-500 py-8">No Hindi words found in the text</p>
+                    </div>
+                </div>
+
+                <!-- Incorrect Words (Hidden by default) -->
+                <div class="bg-white rounded-lg shadow-sm border-2 border-red-200 hidden" id="incorrectEnglishCard">
+                    <div class="px-6 py-4 border-b border-red-200 bg-red-50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-medium flex items-center">
+                                <i data-lucide="alert-triangle" class="text-red-500 w-5 h-5 mr-2"></i>
+                                Incorrect English Words
+                                <span class="ml-2 px-2 py-1 bg-red-500 text-white text-sm rounded" id="incorrectEnglishBadge">0</span>
+                            </h3>
+                            <button onclick="copyWords('incorrect-english')" class="px-3 py-1 text-sm border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white">
+                                <i data-lucide="copy" class="w-4 h-4 inline mr-1"></i>Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6" id="incorrectEnglishContainer"></div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border-2 border-red-200 hidden" id="incorrectHindiCard">
+                    <div class="px-6 py-4 border-b border-red-200 bg-red-50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-medium flex items-center">
+                                <i data-lucide="alert-triangle" class="text-red-500 w-5 h-5 mr-2"></i>
+                                Incorrect Hindi Words
+                                <span class="ml-2 px-2 py-1 bg-red-500 text-white text-sm rounded" id="incorrectHindiBadge">0</span>
+                            </h3>
+                            <button onclick="copyWords('incorrect-hindi')" class="px-3 py-1 text-sm border border-red-500 text-red-500 rounded hover:bg-red-500 hover:text-white">
+                                <i data-lucide="copy" class="w-4 h-4 inline mr-1"></i>Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6" id="incorrectHindiContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div class="mt-8 bg-white rounded-lg shadow-sm border p-6" id="exportSection">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium">Export Options</h3>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600">Export format:</span>
+                    <select id="exportFormat" class="border rounded px-3 py-1">
+                        <option value="json">JSON</option>
+                        <option value="csv">CSV</option>
+                        <option value="txt">TXT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <button onclick="exportData('all')" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 font-medium">
+                    <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>Export All
+                </button>
+                <button onclick="exportData('english')" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium">
+                    <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>English Only
+                </button>
+                <button onclick="exportData('hindi')" class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 font-medium">
+                    <i data-lucide="languages" class="w-4 h-4 inline mr-2"></i>Hindi Only
+                </button>
+                <button onclick="exportData('stats')" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 font-medium">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>Statistics
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Global variables
+        let processedData = {
+            hindiWords: [],
+            englishWords: [],
+            incorrectHindiWords: [],
+            incorrectEnglishWords: []
+        };
+
+        // Common word dictionaries (simplified for this demo)
+        const commonEnglishWords = new Set([
+            'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
+            'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their',
+            'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me', 'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him',
+            'python', 'programming', 'language', 'development', 'web', 'data', 'science', 'created', 'popular', 'movie', 'pizza', 'friends', 'cafe',
+            'powerful', 'widely', 'used', 'world', 'guido', 'van', 'rossum', 'today', 'start', 'learn', 'should', 'inception', 'mind', 'blowing'
+        ]);
+
+        const commonHindiWords = new Set([
+            'है', 'के', 'की', 'को', 'में', 'से', 'पर', 'और', 'या', 'भी', 'जो', 'कि', 'तो', 'ही', 'एक', 'दो', 'क्या', 'कैसे', 'कब', 'आज', 'कल',
+            'उपयोग', 'जाता', 'दुनिया', 'सबसे', 'लोकप्रिय', 'भाषाओं', 'सीखा', 'शुरू', 'करना', 'चाहिए', 'देखी', 'खाया', 'बिताया', 'माने'
+        ]);
+
+        // Sample text
+        const sampleText = `Python एक powerful programming language है जिसका use web development, data science, और AI में widely किया जाता है। It was created by Guido van Rossum in 1991. आज, यह दुनिया की most popular languages में से एक है। क्या आपने Python सीखा है? If not, you should start today! कल मैंने movie "Inception" देखी, जो बहुत mind-blowing थी! उसके बाद मैंने pizza खाया और friends के साथ café में time spend किया। Some incrct wrds: progrmming, develpmnt, lng, populr, movee, piza, tim.`;
+
+        // Text processing functions
+        function isValidEnglishWord(word) {
+            const cleanWord = word.toLowerCase().replace(/[^a-z]/g, '');
+            return cleanWord.length >= 2 && (commonEnglishWords.has(cleanWord) || cleanWord.length >= 4);
+        }
+
+        function isValidHindiWord(word) {
+            return word.length >= 1 && (commonHindiWords.has(word) || word.length >= 2);
+        }
+
+        function separateHindiEnglish(text) {
+            const hindiPattern = /[\u0900-\u097F]+/g;
+            const englishPattern = /[a-zA-Z]+/g;
+            
+            const allHindiWords = text.match(hindiPattern) || [];
+            const allEnglishWords = text.match(englishPattern) || [];
+            
+            const result = {
+                hindiWords: [],
+                englishWords: [],
+                incorrectHindiWords: [],
+                incorrectEnglishWords: []
+            };
+            
+            allHindiWords.forEach(word => {
+                if (isValidHindiWord(word)) {
+                    result.hindiWords.push(word);
+                } else {
+                    result.incorrectHindiWords.push(word);
+                }
+            });
+            
+            allEnglishWords.forEach(word => {
+                if (isValidEnglishWord(word)) {
+                    result.englishWords.push(word);
+                } else {
+                    result.incorrectEnglishWords.push(word);
+                }
+            });
+            
+            return result;
+        }
+
+        // Event handlers
+        function updateCounts() {
+            const text = document.getElementById('inputText').value;
+            document.getElementById('charCount').textContent = text.length;
+            document.getElementById('wordCount').textContent = text.split(/\s+/).filter(word => word.trim().length > 0).length;
+        }
+
+        function processText() {
+            const text = document.getElementById('inputText').value.trim();
+            if (!text) {
+                alert('Please enter some text to process');
+                return;
+            }
+
+            const btn = document.getElementById('processBtn');
+            btn.textContent = 'Processing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                processedData = separateHindiEnglish(text);
+                displayResults();
+                btn.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>Separate Text';
+                btn.disabled = false;
+                lucide.createIcons();
+            }, 500);
+        }
+
+        function displayResults() {
+            // Update statistics
+            document.getElementById('englishCount').textContent = processedData.englishWords.length;
+            document.getElementById('hindiCount').textContent = processedData.hindiWords.length;
+            document.getElementById('incorrectEnglishCount').textContent = processedData.incorrectEnglishWords.length;
+            document.getElementById('incorrectHindiCount').textContent = processedData.incorrectHindiWords.length;
+
+            // Show/hide incorrect words alert
+            const totalIncorrect = processedData.incorrectEnglishWords.length + processedData.incorrectHindiWords.length;
+            const alertDiv = document.getElementById('incorrectWordsAlert');
+            if (totalIncorrect > 0) {
+                alertDiv.classList.remove('hidden');
+            } else {
+                alertDiv.classList.add('hidden');
+            }
+
+            // Display word lists
+            displayWordList('english', processedData.englishWords);
+            displayWordList('hindi', processedData.hindiWords);
+            
+            // Display incorrect words if any
+            if (processedData.incorrectEnglishWords.length > 0) {
+                displayWordList('incorrect-english', processedData.incorrectEnglishWords);
+                document.getElementById('incorrectEnglishCard').classList.remove('hidden');
+            }
+            
+            if (processedData.incorrectHindiWords.length > 0) {
+                displayWordList('incorrect-hindi', processedData.incorrectHindiWords);
+                document.getElementById('incorrectHindiCard').classList.remove('hidden');
+            }
+        }
+
+        function displayWordList(type, words) {
+            const containerId = type + (type.includes('incorrect') ? 'Container' : 'WordsContainer');
+            const badgeId = type + (type.includes('incorrect') ? 'Badge' : 'Badge');
+            const container = document.getElementById(containerId);
+            const badge = document.getElementById(badgeId);
+            
+            badge.textContent = words.length;
+            
+            if (words.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">No ' + type.replace('-', ' ') + ' words found</p>';
+                return;
+            }
+            
+            const isHindi = type.includes('hindi');
+            const isIncorrect = type.includes('incorrect');
+            const colorClass = isIncorrect ? 'bg-red-100 text-red-800 border border-red-300' : 
+                               isHindi ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800';
+            
+            container.innerHTML = '<div class="flex flex-wrap gap-2">' +
+                words.map(word => 
+                    `<span class="px-3 py-1.5 ${colorClass} rounded-full text-sm font-medium ${isHindi ? 'hindi-text' : ''}">${word}</span>`
+                ).join('') + '</div>';
+        }
+
+        function copyWords(type) {
+            let words;
+            switch(type) {
+                case 'english': words = processedData.englishWords; break;
+                case 'hindi': words = processedData.hindiWords; break;
+                case 'incorrect-english': words = processedData.incorrectEnglishWords; break;
+                case 'incorrect-hindi': words = processedData.incorrectHindiWords; break;
+            }
+            
+            navigator.clipboard.writeText(words.join(', ')).then(() => {
+                alert('Words copied to clipboard!');
+            });
+        }
+
+        function pasteText() {
+            navigator.clipboard.readText().then(text => {
+                document.getElementById('inputText').value = text;
+                updateCounts();
+            }).catch(() => {
+                alert('Unable to paste from clipboard');
+            });
+        }
+
+        function clearText() {
+            document.getElementById('inputText').value = '';
+            updateCounts();
+            
+            // Reset results
+            processedData = { hindiWords: [], englishWords: [], incorrectHindiWords: [], incorrectEnglishWords: [] };
+            document.getElementById('englishCount').textContent = '0';
+            document.getElementById('hindiCount').textContent = '0';
+            document.getElementById('incorrectWordsAlert').classList.add('hidden');
+            document.getElementById('incorrectEnglishCard').classList.add('hidden');
+            document.getElementById('incorrectHindiCard').classList.add('hidden');
+            
+            displayWordList('english', []);
+            displayWordList('hindi', []);
+        }
+
+        function loadSample() {
+            document.getElementById('inputText').value = sampleText;
+            updateCounts();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('inputText').value = e.target.result;
+                updateCounts();
+            };
+            reader.readAsText(file);
+        }
+
+        function exportData(type) {
+            const format = document.getElementById('exportFormat').value;
+            const timestamp = new Date().toISOString().split('T')[0];
+            
+            let content, filename, mimeType;
+            
+            if (format === 'json') {
+                const data = {
+                    hindiWords: processedData.hindiWords,
+                    englishWords: processedData.englishWords,
+                    incorrectHindiWords: processedData.incorrectHindiWords,
+                    incorrectEnglishWords: processedData.incorrectEnglishWords,
+                    stats: {
+                        hindiCount: processedData.hindiWords.length,
+                        englishCount: processedData.englishWords.length,
+                        incorrectHindiCount: processedData.incorrectHindiWords.length,
+                        incorrectEnglishCount: processedData.incorrectEnglishWords.length,
+                        timestamp: new Date().toISOString()
+                    }
+                };
+                content = JSON.stringify(data, null, 2);
+                filename = `text-separation-${timestamp}.json`;
+                mimeType = 'application/json';
+            } else if (format === 'csv') {
+                content = 'Correct Hindi,Correct English,Incorrect Hindi,Incorrect English\\n';
+                const maxLength = Math.max(
+                    processedData.hindiWords.length,
+                    processedData.englishWords.length,
+                    processedData.incorrectHindiWords.length,
+                    processedData.incorrectEnglishWords.length
+                );
+                
+                for (let i = 0; i < maxLength; i++) {
+                    const hindi = processedData.hindiWords[i] || '';
+                    const english = processedData.englishWords[i] || '';
+                    const incorrectHindi = processedData.incorrectHindiWords[i] || '';
+                    const incorrectEnglish = processedData.incorrectEnglishWords[i] || '';
+                    content += `"${hindi}","${english}","${incorrectHindi}","${incorrectEnglish}"\\n`;
+                }
+                filename = `text-separation-${timestamp}.csv`;
+                mimeType = 'text/csv';
+            } else {
+                content = 'HINDI-ENGLISH TEXT SEPARATION RESULTS\\n';
+                content += '=====================================\\n\\n';
+                content += `Processed on: ${new Date().toLocaleString()}\\n`;
+                content += `Total words: ${processedData.hindiWords.length + processedData.englishWords.length + processedData.incorrectHindiWords.length + processedData.incorrectEnglishWords.length}\\n\\n`;
+                
+                content += `CORRECT ENGLISH WORDS (${processedData.englishWords.length}):\\n`;
+                content += processedData.englishWords.join(', ') + '\\n\\n';
+                
+                content += `CORRECT HINDI WORDS (${processedData.hindiWords.length}):\\n`;
+                content += processedData.hindiWords.join(', ') + '\\n\\n';
+                
+                if (processedData.incorrectEnglishWords.length > 0) {
+                    content += `INCORRECT ENGLISH WORDS (${processedData.incorrectEnglishWords.length}):\\n`;
+                    content += processedData.incorrectEnglishWords.join(', ') + '\\n\\n';
+                }
+                
+                if (processedData.incorrectHindiWords.length > 0) {
+                    content += `INCORRECT HINDI WORDS (${processedData.incorrectHindiWords.length}):\\n`;
+                    content += processedData.incorrectHindiWords.join(', ') + '\\n\\n';
+                }
+                
+                filename = `text-separation-${timestamp}.txt`;
+                mimeType = 'text/plain';
+            }
+            
+            downloadFile(content, filename, mimeType);
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listeners
+        document.getElementById('inputText').addEventListener('input', updateCounts);
+        
+        // Initialize
+        updateCounts();
+    </script>
+</body>
+</html>
